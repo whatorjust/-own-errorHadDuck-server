@@ -1,6 +1,10 @@
 const express = require('express');
+const router = require('./routes.js');
+const bodyParser = require('body-parser');
 require('dotenv').config();
 const app = express();
+app.use(bodyParser.json());
+app.use('/', router);
 const port = process.env.SERVER_PORT || 3000;
 app.get('/', (req, res) => res.send('Quack Quack!!'));
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
