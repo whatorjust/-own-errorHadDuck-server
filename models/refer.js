@@ -1,7 +1,7 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
-  const Refers = sequelize.define(
-    'Refers',
+  const Refer = sequelize.define(
+    'Refer',
     {
       referurl: DataTypes.STRING,
       understand: DataTypes.STRING
@@ -9,8 +9,8 @@ module.exports = (sequelize, DataTypes) => {
     {}
   );
 
-  Refers.associate = function(models) {
-    Refers.belongsTo(models.Posts);
+  Refer.associate = function(models) {
+    Refer.belongsTo(models.Post);
   };
-  return Refers;
+  return Refer;
 };

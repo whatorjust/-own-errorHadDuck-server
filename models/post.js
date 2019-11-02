@@ -1,8 +1,8 @@
 'use strict';
 
 module.exports = (sequelize, DataTypes) => {
-  const Posts = sequelize.define(
-    'Posts',
+  const Post = sequelize.define(
+    'Post',
     {
       postname: { type: DataTypes.STRING, allowNull: false },
       postcode: DataTypes.STRING,
@@ -11,12 +11,10 @@ module.exports = (sequelize, DataTypes) => {
     },
     {}
   );
-  Posts.associate = function(models) {
-    Posts.belongsTo(models.Users);
-    Posts.hasMany(models.Refers);
-    Posts.belongsToMany(models.Keywords, {
-      through: 'Poskey'
-    });
+  Post.associate = function(models) {
+    Post.belongsTo(models.User);
+    Post.hasMany(models.Refer);
+    Post.hasMany(models.Poskey);
   };
-  return Posts;
+  return Post;
 };
