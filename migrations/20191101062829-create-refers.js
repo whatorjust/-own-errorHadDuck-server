@@ -1,18 +1,18 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('Users', {
+    return queryInterface.createTable('Refers', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      username: { type: Sequelize.STRING, unique: true, allowNull: false },
-      email: { type: Sequelize.STRING, unique: true, allowNull: false },
-      password: {
-        type: Sequelize.STRING,
-        allowNull: false
+      referurl: {
+        type: Sequelize.STRING
+      },
+      understand: {
+        type: Sequelize.STRING
       },
       createdAt: {
         allowNull: false,
@@ -25,6 +25,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('Users');
+    return queryInterface.dropTable('Refers');
   }
 };
