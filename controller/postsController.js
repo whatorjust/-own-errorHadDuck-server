@@ -32,9 +32,9 @@ module.exports = {
                 if (req.body.keyword) {
                   models.Post.findOne({ where: { id: post.id } }).then(post => {
                     Promise.all(
-                      req.body.keyword.map(refer => {
+                      req.body.keyword.map(keyword => {
                         models.Keyword.create({
-                          keyword: refer.keyword
+                          keyword: keyword
                         }).then(keyword => {
                           models.Poskey.create({
                             KeywordId: keyword.id,
