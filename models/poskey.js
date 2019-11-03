@@ -5,7 +5,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       poskey: DataTypes.STRING
     },
-    {}
+    { charset: 'utf8', collate: 'utf8_general_ci' }
   );
   Poskey.associate = function(models) {
     Poskey.belongsTo(models.Post);

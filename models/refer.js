@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
       referurl: DataTypes.STRING,
       understand: DataTypes.STRING
     },
-    {}
+    { charset: 'utf8', collate: 'utf8_general_ci' }
   );
 
   Refer.associate = function(models) {

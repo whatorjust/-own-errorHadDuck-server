@@ -5,7 +5,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       keyword: DataTypes.STRING
     },
-    {}
+    { charset: 'utf8', collate: 'utf8_general_ci' }
   );
   Keyword.associate = function(models) {
     Keyword.hasMany(models.Poskey);

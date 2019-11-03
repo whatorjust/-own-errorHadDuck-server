@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
       solution: DataTypes.STRING,
       iscomplete: { type: DataTypes.BOOLEAN, defaultValue: false }
     },
-    {}
+    { charset: 'utf8', collate: 'utf8_general_ci' }
   );
   Post.associate = function(models) {
     Post.belongsTo(models.User);
