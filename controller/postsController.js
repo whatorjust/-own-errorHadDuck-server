@@ -53,11 +53,39 @@ module.exports = {
                   res.status(200).send({ postid: post.id });
                 });
               } else {
+                //keyword없는 경우
                 res.status(200).send({ postid: post.id });
               }
             });
           } else {
-            res.status(200).send({ postid: post.id });
+            //refer없는 경우
+            if (req.body.keyword) {
+              Promise.all(
+                req.body.keyword.map(keyword => {
+                  models.Keyword.findOne({ where: { keyword: keyword } }) //이미 존재하는 keyword인지 확인
+                    .then(found => {
+                      if (found) {
+                        return found;
+                      } else {
+                        //새로운 keyword일 시에만 keyword생성
+                        return models.Keyword.create({
+                          keyword: keyword
+                        });
+                      }
+                    }) //해당 keyword의 id를 조인테이블을 통해 post와 연결해줌
+                    .then(keyword => {
+                      models.Poskey.create({
+                        KeywordId: keyword.id,
+                        PostId: post.id
+                      });
+                    });
+                })
+              ).then(() => {
+                res.status(200).send({ postid: post.id });
+              });
+            } else {
+              res.status(200).send({ postid: post.id });
+            }
           }
         });
       });
