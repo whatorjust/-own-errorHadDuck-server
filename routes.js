@@ -8,6 +8,7 @@ router.post('/users/signup', usersController.signup);
 
 router.post('/posts', postsController.newPost);
 router.get('/posts/:id', postsController.getOne);
+router.get('/posts', postsController.getAll);
 
 router.get('/admin/truncate', adminController.truncate);
 module.exports = router;
