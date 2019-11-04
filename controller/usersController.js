@@ -1,8 +1,20 @@
 const models = require('../models');
-
+require('dotenv').config();
+const secret = process.env.secret;
+const jwt = require('jsonwebtoken');
 module.exports = {
   login: function(req, res) {
     try {
+      let token = jwt.sign(
+        {
+          username: req.body.username
+        },
+        secret,
+        {
+          expiresIn: '10m' //유효시간 5분
+        }
+      );
+
       models.User.findOne({
         //name존재부터 check
         where: {
@@ -18,6 +30,8 @@ module.exports = {
             }
           }).then(result => {
             if (result) {
+              //이름,비밀번호 전부 맞은 경우
+              res.cookie('oreo', token); //쿠키에 oreo라는 이름으로 token저장
               res.status(200).send({ userid: result.id });
             } else {
               //비밀번호가 틀린 경우
