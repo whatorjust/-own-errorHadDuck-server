@@ -12,7 +12,11 @@ module.exports = {
           id: req.body.userid
         }
       }).then(user => {
+        //id없는데 post하는 경우 에러처리 안되고있음
         //해당 유저의 post생성
+        if (!user) {
+          res.status(400).send({ msg: 'noUser' });
+        }
         models.Post.create({
           UserId: user.id, //지금 user없는 경우 처리 안되고있음
           postname: req.body.post.postname,
