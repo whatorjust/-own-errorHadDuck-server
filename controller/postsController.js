@@ -37,7 +37,7 @@ module.exports = {
                           return found;
                         } else {
                           //새로운 keyword일 시에만 keyword생성
-                          models.Keyword.create({
+                          return models.Keyword.create({
                             keyword: keyword
                           });
                         }
