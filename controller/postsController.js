@@ -109,7 +109,11 @@ module.exports = {
           { model: models.Refer } //참조관계인 model:Refer 포함
         ]
       }).then(result => {
-        res.send(result);
+        if (result) {
+          res.send(result);
+        } else {
+          res.status(400).send({ msg: 'noPost' });
+        }
       });
     } catch (err) {
       console.log('err', err);
