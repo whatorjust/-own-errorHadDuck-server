@@ -1,7 +1,10 @@
-const controller = require('./controller');
+const usersController = require('./controller/usersController');
+const postsController = require('./controller/postsController');
 const router = require('express').Router();
 
-router.post('/users/login', controller.users.login);
-router.post('/users/signup', controller.users.signup);
-//컨트롤러도 분기 하자 /users, /posts
+router.post('/users/login', usersController.login);
+router.post('/users/signup', usersController.signup);
+
+router.post('/posts', postsController.newPost);
+router.get('/posts/:id', postsController.getOne);
 module.exports = router;
