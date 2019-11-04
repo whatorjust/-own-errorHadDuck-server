@@ -14,7 +14,7 @@ module.exports = {
       }).then(user => {
         //해당 유저의 post생성
         models.Post.create({
-          UserId: user.id,
+          UserId: user.id, //지금 user없는 경우 처리 안되고있음
           postname: req.body.post.postname,
           postcode: req.body.post.postcode,
           solution: req.body.post.solution
