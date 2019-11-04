@@ -15,7 +15,7 @@ const port = process.env.SERVER_PORT || 3000;
 
 const JWTmiddleWare = (req, res, next) => {
   try {
-    if (req.path !== '/users/signup') {
+    if (req.path !== '/users/signup' && req.path !== '/users/login') {
       let token = req.cookies.oreo; //cookie-parser이용
       let decoded = jwt.verify(token, secret);
       if (decoded) {
@@ -37,7 +37,6 @@ app.get('/', (req, res) => res.send('Quack Quack!!'));
 models.sequelize
   .sync()
   .then(() => {
-    console.log('model defined');
     app.listen(port, () =>
       console.log(`Example app listening on port ${port}!`)
     );
