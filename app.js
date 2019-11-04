@@ -8,6 +8,8 @@ const secret = process.env.secret;
 const jwt = require('jsonwebtoken');
 const app = express();
 const cookieParser = require('cookie-parser');
+const crypto = require('crypto');
+const mysalt = process.env.salt;
 app.use(cors());
 app.use(bodyParser.json());
 app.use(cookieParser());
