@@ -6,35 +6,68 @@ const jwt = require('jsonwebtoken');
 module.exports = {
   newPost: async function(req, res) {
     try {
+      //이거 jwt이용해서 토큰에 있는 userid 가져오자
+      let token = req.cookies.oreo; //cookie-parser이용
+      let decoded = jwt.verify(token, secret);
+
       //해당 유저에 연결시켜주기 위해 해당 유저객체 find
-      models.User.findOne({
-        where: {
-          id: req.body.userid
-        }
-      }).then(user => {
-        //id없는데 post하는 경우 에러처리 안되고있음
-        //해당 유저의 post생성
-        if (!user) {
-          res.status(400).send({ msg: 'noUser' });
-        }
-        models.Post.create({
-          UserId: user.id, //지금 user없는 경우 처리 안되고있음
-          postname: req.body.post.postname,
-          postcode: req.body.post.postcode,
-          solution: req.body.post.solution
-        }).then(post => {
-          if (req.body.refer) {
-            //refers array가 있는 경우 반복문 비동기 처리를 통해, 다수의 refer객체 생성
-            Promise.all(
-              req.body.refer.map(refer => {
-                models.Refer.create({
-                  PostId: post.id,
-                  referurl: refer.referurl,
-                  understand: refer.understand
-                });
-              })
-            ).then(() => {
-              //keyword 항목 존재 경우 반복문 비동기 처리를 통해, 다수의 Keyword객체 생성
+      models.User.findOne({ where: { username: decoded.username } }).then(
+        user => {
+          //id없는데 post하는 경우 에러처리 안되고있음
+          //해당 유저의 post생성
+          if (!user) {
+            res.status(400).send({ msg: 'noUser' });
+          }
+          models.Post.create({
+            UserId: user.id, //지금 user없는 경우 처리 안되고있음
+            postname: req.body.post.postname,
+            postcode: req.body.post.postcode,
+            solution: req.body.post.solution,
+            iscomplete: req.body.post.iscomplete
+          }).then(post => {
+            if (req.body.refer) {
+              //refers array가 있는 경우 반복문 비동기 처리를 통해, 다수의 refer객체 생성
+              Promise.all(
+                req.body.refer.map(refer => {
+                  models.Refer.create({
+                    PostId: post.id,
+                    referurl: refer.referurl,
+                    understand: refer.understand
+                  });
+                })
+              ).then(() => {
+                //keyword 항목 존재 경우 반복문 비동기 처리를 통해, 다수의 Keyword객체 생성
+                if (req.body.keyword) {
+                  Promise.all(
+                    req.body.keyword.map(keyword => {
+                      models.Keyword.findOne({ where: { keyword: keyword } }) //이미 존재하는 keyword인지 확인
+                        .then(found => {
+                          if (found) {
+                            return found;
+                          } else {
+                            //새로운 keyword일 시에만 keyword생성
+                            return models.Keyword.create({
+                              keyword: keyword
+                            });
+                          }
+                        }) //해당 keyword의 id를 조인테이블을 통해 post와 연결해줌
+                        .then(keyword => {
+                          models.Poskey.create({
+                            KeywordId: keyword.id,
+                            PostId: post.id
+                          });
+                        });
+                    })
+                  ).then(() => {
+                    res.status(200).send({ postid: post.id });
+                  });
+                } else {
+                  //keyword없는 경우
+                  res.status(200).send({ postid: post.id });
+                }
+              });
+            } else {
+              //refer없는 경우
               if (req.body.keyword) {
                 Promise.all(
                   req.body.keyword.map(keyword => {
@@ -60,42 +93,12 @@ module.exports = {
                   res.status(200).send({ postid: post.id });
                 });
               } else {
-                //keyword없는 경우
                 res.status(200).send({ postid: post.id });
               }
-            });
-          } else {
-            //refer없는 경우
-            if (req.body.keyword) {
-              Promise.all(
-                req.body.keyword.map(keyword => {
-                  models.Keyword.findOne({ where: { keyword: keyword } }) //이미 존재하는 keyword인지 확인
-                    .then(found => {
-                      if (found) {
-                        return found;
-                      } else {
-                        //새로운 keyword일 시에만 keyword생성
-                        return models.Keyword.create({
-                          keyword: keyword
-                        });
-                      }
-                    }) //해당 keyword의 id를 조인테이블을 통해 post와 연결해줌
-                    .then(keyword => {
-                      models.Poskey.create({
-                        KeywordId: keyword.id,
-                        PostId: post.id
-                      });
-                    });
-                })
-              ).then(() => {
-                res.status(200).send({ postid: post.id });
-              });
-            } else {
-              res.status(200).send({ postid: post.id });
             }
-          }
-        });
-      });
+          });
+        }
+      );
     } catch (err) {
       res.sendStatus(500);
     }
@@ -178,6 +181,43 @@ module.exports = {
       }
     } catch (err) {
       res.status(500).send(err);
+    }
+  },
+  deleteOne: async function(req, res) {
+    try {
+      // 먼저 해당아이디와 postid로 삭제할 where절 구성
+      let token = req.cookies.oreo; //cookie-parser이용
+      let decoded = jwt.verify(token, secret);
+      models.User.findOne({
+        where: {
+          username: decoded.username
+        }
+      }).then(user => {
+        //associate에서 cascade옵션 줬으나, n:m 과정인 poskey와 keyword는 삭제 안되고 있음.
+        //그러면 포스키만 날리자. keyword는 poskey날리고 참조0일때만 날리고
+        Promise.all([
+          models.sequelize.query('SET FOREIGN_KEY_CHECKS = 0'),
+          models.Poskey.destroy({ where: { PostId: req.params.id } }),
+          models.sequelize.query('SET FOREIGN_KEY_CHECKS = 1')
+        ]).then(() => {
+          models.Post.destroy({
+            //입력받은 postid와 token의 username을 통해 확인한 userid로 post선택
+            where: {
+              id: req.params.id,
+              UserId: user.id
+            }
+          }).then(result => {
+            if (result) {
+              res.sendStatus(200);
+            } else {
+              res.status(400).send({ msg: 'failDelete' });
+            }
+          });
+        });
+      });
+    } catch (err) {
+      console.log('err', err);
+      res.sendStatus(500);
     }
   }
 };

@@ -8,8 +8,8 @@ module.exports = (sequelize, DataTypes) => {
     { charset: 'utf8', collate: 'utf8_general_ci' }
   );
   Poskey.associate = function(models) {
-    Poskey.belongsTo(models.Post);
-    Poskey.belongsTo(models.Keyword);
+    Poskey.belongsTo(models.Post, { onDelete: 'CASCADE' });
+    Poskey.belongsTo(models.Keyword, { onDelete: 'CASCADE' });
   };
   return Poskey;
 };
