@@ -140,14 +140,7 @@ module.exports = {
               //입력받은 postid를 통해 post선택
               where: {
                 UserId: user.id
-              }, //참조관계인 model:Poskey도 포함
-              include: [
-                {
-                  model: models.Poskey, //연관된 models.Poskey에 연관된 models.Keyword도 포함
-                  include: { model: models.Keyword }
-                },
-                { model: models.Refer } //참조관계인 model:Refer 포함
-              ]
+              }
             }).then(result => {
               if (result) {
                 res.send(result);

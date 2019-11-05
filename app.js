@@ -13,6 +13,7 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 const port = process.env.SERVER_PORT || 3000;
 
+app.get('/', (req, res) => res.send('Quack Quack!!'));
 const JWTmiddleWare = (req, res, next) => {
   try {
     if (req.path !== '/users/signup' && req.path !== '/users/login') {
@@ -33,7 +34,7 @@ const JWTmiddleWare = (req, res, next) => {
 
 app.use(JWTmiddleWare);
 app.use('/', router);
-app.get('/', (req, res) => res.send('Quack Quack!!'));
+
 models.sequelize
   .sync()
   .then(() => {

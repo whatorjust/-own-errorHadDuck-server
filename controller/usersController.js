@@ -2,6 +2,9 @@ const models = require('../models');
 require('dotenv').config();
 const secret = process.env.secret;
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+const mysalt = process.env.salt;
+
 module.exports = {
   login: function(req, res) {
     try {
@@ -11,7 +14,7 @@ module.exports = {
         },
         secret,
         {
-          expiresIn: '10m' //유효시간 5분
+          expiresIn: '1h' //유효시간 1hour
         }
       );
 
@@ -26,7 +29,10 @@ module.exports = {
             //name존재부터 check
             where: {
               username: req.body.username,
-              password: req.body.password
+              password: crypto
+                .createHash('sha512')
+                .update(req.body.password + mysalt)
+                .digest('base64')
             }
           }).then(result => {
             if (result) {
@@ -49,7 +55,10 @@ module.exports = {
   },
   signup: function(req, res) {
     let rawInfo = req.body;
-    // rawInfo.password = utils.crypto(rawInfo.password);
+    rawInfo.password = crypto
+      .createHash('sha512')
+      .update(rawInfo.password + mysalt)
+      .digest('base64');
     try {
       models.User.findOne({
         where: {
