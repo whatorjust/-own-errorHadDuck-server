@@ -13,6 +13,7 @@ module.exports = {
       //해당 유저에 연결시켜주기 위해 해당 유저객체 find
       models.User.findOne({ where: { username: decoded.username } }).then(
         user => {
+          console.log('findone result length?exist?', user.length);
           //id없는데 post하는 경우 에러처리 안되고있음
           //해당 유저의 post생성
           if (!user) {
@@ -37,7 +38,7 @@ module.exports = {
                 })
               ).then(() => {
                 //keyword 항목 존재 경우 반복문 비동기 처리를 통해, 다수의 Keyword객체 생성
-                if (req.body.keyword) {
+                if (req.body.keyword.length !== 0) {
                   Promise.all(
                     req.body.keyword.map(keyword => {
                       models.Keyword.findOne({ where: { keyword: keyword } }) //이미 존재하는 keyword인지 확인
@@ -68,7 +69,7 @@ module.exports = {
               });
             } else {
               //refer없는 경우
-              if (req.body.keyword) {
+              if (req.body.keyword.length !== 0) {
                 Promise.all(
                   req.body.keyword.map(keyword => {
                     models.Keyword.findOne({ where: { keyword: keyword } }) //이미 존재하는 keyword인지 확인
@@ -154,6 +155,7 @@ module.exports = {
         models.User.findOne({ where: { username: decoded.username } })
           .then(user => {
             if (req.query.iscomplete) {
+              //요거는 오게 맞다. body아니야!
               //iscomplete query들어올 경우
               return models.Post.findAll({
                 //입력받은 postid를 통해 post선택
@@ -173,6 +175,7 @@ module.exports = {
           })
           .then(result => {
             if (result.length !== 0) {
+              //이거 if조건 체크해봐야한다.
               res.send(result);
             } else {
               res.status(400).send({ msg: 'noPost' });
@@ -218,6 +221,140 @@ module.exports = {
     } catch (err) {
       console.log('err', err);
       res.sendStatus(500);
+    }
+  },
+  patchOne: async function(req, res) {
+    try {
+      // 먼저 해당아이디와 postid로 업데이트 할 where절 구성
+      let token = req.cookies.oreo; //cookie-parser이용
+      let decoded = jwt.verify(token, secret);
+      models.User.findOne({
+        where: {
+          username: decoded.username
+        }
+      })
+        .then(user => {
+          return models.Post.update(req.body.post, {
+            where: { id: req.params.id, UserId: user.id }
+          });
+        })
+        .then(() => {
+          return models.Post.findOne({ where: { id: req.params.id } });
+        })
+
+        //포스트만 업데이트 때리고, 연결된 참조 다 날린다고 생각하면?
+        .then(postUpdate => {
+          if (postUpdate) {
+            if (req.body.refer.length) {
+              console.log('refer있다');
+              Promise.all([
+                models.sequelize.query('SET FOREIGN_KEY_CHECKS = 0'),
+                models.Refer.destroy({ where: { PostId: req.params.id } }), //레퍼 뽀각
+                models.sequelize.query('SET FOREIGN_KEY_CHECKS = 1')
+              ])
+                .then(() => {
+                  Promise.all(
+                    //래퍼 뽀각 다시 생성
+                    req.body.refer.map(refer => {
+                      models.Refer.create({
+                        PostId: postUpdate.id,
+                        referurl: refer.referurl,
+                        understand: refer.understand
+                      });
+                    })
+                  );
+                })
+                .then(result => {
+                  console.log('keyword있다', result);
+                  Promise.all([
+                    models.sequelize.query('SET FOREIGN_KEY_CHECKS = 0'),
+                    models.Poskey.destroy({
+                      where: { PostId: req.params.id }
+                    }), //포스키 뽀개고 키워드 살려둔다.
+                    models.sequelize.query('SET FOREIGN_KEY_CHECKS = 1')
+                  ]).then(() => {
+                    if (req.body.keyword.length) {
+                      Promise.all(
+                        req.body.keyword.map(keyword => {
+                          models.Keyword.findOne({
+                            where: { keyword: keyword }
+                          }) //이미 존재하는 keyword인지 확인
+                            .then(found => {
+                              if (found) {
+                                return found;
+                              } else {
+                                //새로운 keyword일 시에만 keyword생성
+                                return models.Keyword.create({
+                                  keyword: keyword
+                                });
+                              }
+                            }) //해당 keyword의 id를 조인테이블을 통해 post와 연결해줌
+                            .then(keyword => {
+                              models.Poskey.create({
+                                KeywordId: keyword.id,
+                                PostId: postUpdate.id
+                              });
+                            });
+                        })
+                      ).then(() => {
+                        res
+                          .status(200)
+                          .send({ changed: ['post', 'refer', 'keyword'] });
+                      });
+                    } else {
+                      //요기 레퍼있고 키워드 없는 경우
+                      res.status(200).send({ changed: ['post', 'refer'] });
+                    }
+                  });
+                });
+            } else {
+              console.log('refer없다');
+              //refer없는데, keyword변경사항 있는 경우.
+              if (req.body.keyword.length) {
+                console.log('keyword있다');
+                Promise.all([
+                  models.sequelize.query('SET FOREIGN_KEY_CHECKS = 0'),
+                  models.Poskey.destroy({ where: { PostId: req.params.id } }), //포스키 뽀개고 키워드 살려둔다.
+                  models.sequelize.query('SET FOREIGN_KEY_CHECKS = 1')
+                ])
+                  .then(() => {
+                    Promise.all(
+                      req.body.keyword.map(keyword => {
+                        models.Keyword.findOne({
+                          where: { keyword: keyword }
+                        }) //이미 존재하는 keyword인지 확인
+                          .then(found => {
+                            if (found) {
+                              return found;
+                            } else {
+                              //새로운 keyword일 시에만 keyword생성
+                              return models.Keyword.create({
+                                keyword: keyword
+                              });
+                            }
+                          }) //해당 keyword의 id를 조인테이블을 통해 post와 연결해줌
+                          .then(keyword => {
+                            models.Poskey.create({
+                              KeywordId: keyword.id,
+                              PostId: postUpdate.id
+                            });
+                          });
+                      })
+                    );
+                  })
+                  .then(() => {
+                    res.status(200).send({ changed: ['post', 'keyword'] });
+                  });
+              } else {
+                res.status(200).send({ changed: ['post'] });
+              }
+            }
+          } else {
+            res.status(400).send({ msg: 'noPost' });
+          }
+        });
+    } catch (err) {
+      res.status(500).send(err);
     }
   }
 };

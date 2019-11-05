@@ -13,8 +13,8 @@ module.exports = (sequelize, DataTypes) => {
   );
   Post.associate = function(models) {
     Post.belongsTo(models.User);
-    Post.hasMany(models.Refer, { onDelete: 'cascade' });
-    Post.hasMany(models.Poskey, { onDelete: 'cascade' });
+    Post.hasMany(models.Refer, { onDelete: 'CASCADE' });
+    Post.hasMany(models.Poskey, { onDelete: 'CASCADE' });
   };
   return Post;
 };
