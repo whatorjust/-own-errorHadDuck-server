@@ -101,9 +101,8 @@ module.exports = {
     }
   },
   getOne: function(req, res) {
+    //본인 소유 글만 볼 수 있게 수정해야함
     try {
-      console.log('req.query.qstr:', req.query.qstr);
-      console.log('req.params.id', req.params.id);
       models.Post.findOne({
         //입력받은 postid를 통해 post선택
         where: {
@@ -118,8 +117,21 @@ module.exports = {
         ]
       }).then(result => {
         if (result) {
-          res.send(result);
+          let token = req.cookies.oreo; //cookie-parser이용
+          let decoded = jwt.verify(token, secret);
+          models.User.findOne({
+            where: {
+              username: decoded.username
+            }
+          }).then(user => {
+            if (user.id === result.UserId) {
+              res.send(result);
+            } else {
+              res.status(400).send({ msg: 'noAuth' });
+            }
+          });
         } else {
+          //예외 확인 완료
           res.status(400).send({ msg: 'noPost' });
         }
       });
@@ -138,9 +150,7 @@ module.exports = {
 
         models.User.findOne({ where: { username: decoded.username } })
           .then(user => {
-            console.log('req.query.iscomplete', req.query.iscomplete);
             if (req.query.iscomplete) {
-              console.log('iscomplete존재시');
               //iscomplete query들어올 경우
               return models.Post.findAll({
                 //입력받은 postid를 통해 post선택

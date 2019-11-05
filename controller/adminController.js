@@ -9,6 +9,7 @@ module.exports = {
         models.sequelize.query('SET FOREIGN_KEY_CHECKS = 1')
       ])
         .then(result => {
+          //이거 result length0인 배열이라도 통과된다. result확인 필요
           if (result) {
             res.status(200).send({ msg: 'truncated' });
           }
