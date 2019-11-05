@@ -102,7 +102,8 @@ module.exports = {
   },
   getOne: function(req, res) {
     try {
-      console.log('id', req.params.id);
+      console.log('req.query.qstr:', req.query.qstr);
+      console.log('req.params.id', req.params.id);
       models.Post.findOne({
         //입력받은 postid를 통해 post선택
         where: {
@@ -134,22 +135,36 @@ module.exports = {
       let decoded = jwt.verify(token, secret);
       if (decoded) {
         //토큰 통과시
-        models.User.findOne({ where: { username: decoded.username } }).then(
-          user => {
-            models.Post.findAll({
-              //입력받은 postid를 통해 post선택
-              where: {
-                UserId: user.id
-              }
-            }).then(result => {
-              if (result) {
-                res.send(result);
-              } else {
-                res.status(400).send({ msg: 'noPost' });
-              }
-            });
-          }
-        );
+
+        models.User.findOne({ where: { username: decoded.username } })
+          .then(user => {
+            console.log('req.query.iscomplete', req.query.iscomplete);
+            if (req.query.iscomplete) {
+              console.log('iscomplete존재시');
+              //iscomplete query들어올 경우
+              return models.Post.findAll({
+                //입력받은 postid를 통해 post선택
+                where: {
+                  UserId: user.id,
+                  iscomplete: req.query.iscomplete === 'true' ? 1 : 0
+                }
+              });
+            } else {
+              return models.Post.findAll({
+                //입력받은 postid를 통해 post선택
+                where: {
+                  UserId: user.id
+                }
+              });
+            }
+          })
+          .then(result => {
+            if (result.length !== 0) {
+              res.send(result);
+            } else {
+              res.status(400).send({ msg: 'noPost' });
+            }
+          });
       }
     } catch (err) {
       res.status(500).send(err);
