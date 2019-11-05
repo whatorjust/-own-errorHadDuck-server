@@ -169,34 +169,5 @@ module.exports = {
     } catch (err) {
       res.status(500).send(err);
     }
-  },
-  getBoolean: function(req, res) {
-    try {
-      //이거 jwt이용해서 토큰에 있는 userid 가져오자
-      let token = req.cookies.oreo; //cookie-parser이용
-      let decoded = jwt.verify(token, secret);
-      if (decoded) {
-        //토큰 통과시
-        models.User.findOne({ where: { username: decoded.username } }).then(
-          user => {
-            models.Post.findAll({
-              //입력받은 postid를 통해 post선택
-              where: {
-                UserId: user.id,
-                iscomplete: req.query.iscomplete
-              }
-            }).then(result => {
-              if (result) {
-                res.send(result);
-              } else {
-                res.status(400).send({ msg: 'noPost' });
-              }
-            });
-          }
-        );
-      }
-    } catch (err) {
-      res.status(500).send(err);
-    }
   }
 };
