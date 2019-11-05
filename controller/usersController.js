@@ -14,7 +14,7 @@ module.exports = {
         },
         secret,
         {
-          expiresIn: '10m' //유효시간 5분
+          expiresIn: '1h' //유효시간 1hour
         }
       );
 
