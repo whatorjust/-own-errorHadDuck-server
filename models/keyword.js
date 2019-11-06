@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
     { charset: 'utf8', collate: 'utf8_general_ci' }
   );
   Keyword.associate = function(models) {
-    Keyword.hasMany(models.Poskey);
+    Keyword.hasMany(models.Poskey, { onDelete: 'CASCADE' });
   };
   return Keyword;
 };
