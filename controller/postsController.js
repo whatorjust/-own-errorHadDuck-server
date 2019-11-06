@@ -13,14 +13,8 @@ module.exports = {
       //해당 유저에 연결시켜주기 위해 해당 유저객체 find
       models.User.findOne({ where: { username: decoded.username } }).then(
         user => {
-          console.log('findone result length?exist?', user.length);
-          //id없는데 post하는 경우 에러처리 안되고있음
-          //해당 유저의 post생성
-          if (!user) {
-            res.status(400).send({ msg: 'noUser' });
-          }
           models.Post.create({
-            UserId: user.id, //지금 user없는 경우 처리 안되고있음
+            UserId: user.id,
             postname: req.body.post.postname,
             postcode: req.body.post.postcode,
             solution: req.body.post.solution,
@@ -175,7 +169,6 @@ module.exports = {
           })
           .then(result => {
             if (result.length !== 0) {
-              //이거 if조건 체크해봐야한다.
               res.send(result);
             } else {
               res.status(400).send({ msg: 'noPost' });
@@ -241,8 +234,6 @@ module.exports = {
         .then(() => {
           return models.Post.findOne({ where: { id: req.params.id } });
         })
-
-        //포스트만 업데이트 때리고, 연결된 참조 다 날린다고 생각하면?
         .then(postUpdate => {
           if (postUpdate) {
             if (req.body.refer.length) {
@@ -297,13 +288,17 @@ module.exports = {
                             });
                         })
                       ).then(() => {
-                        res
-                          .status(200)
-                          .send({ changed: ['post', 'refer', 'keyword'] });
+                        res.status(200).send({
+                          postid: postUpdate.id,
+                          changed: ['post', 'refer', 'keyword']
+                        });
                       });
                     } else {
                       //요기 레퍼있고 키워드 없는 경우
-                      res.status(200).send({ changed: ['post', 'refer'] });
+                      res.status(200).send({
+                        postid: postUpdate.id,
+                        changed: ['post', 'refer']
+                      });
                     }
                   });
                 });
@@ -343,10 +338,15 @@ module.exports = {
                     );
                   })
                   .then(() => {
-                    res.status(200).send({ changed: ['post', 'keyword'] });
+                    res.status(200).send({
+                      postid: postUpdate.id,
+                      changed: ['post', 'keyword']
+                    });
                   });
               } else {
-                res.status(200).send({ changed: ['post'] });
+                res
+                  .status(200)
+                  .send({ postid: postUpdate.id, changed: ['post'] });
               }
             }
           } else {
