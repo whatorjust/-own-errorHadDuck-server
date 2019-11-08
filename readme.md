@@ -10,10 +10,6 @@
 
 http://13.125.254.202:5000/
 
-## CLIENT API
-
-http://mysterious-journey.surge.sh
-
 | http method |        endpoint        |             req(json)             | res(성공/실패)                  |                         detail                         | usage                           |         example         |     |
 | ----------- | :--------------------: | :-------------------------------: | ------------------------------- | :----------------------------------------------------: | ------------------------------- | :---------------------: | --- |
 | POST        |      /users/login      |        username, password         | 200/400                         |                         로그인                         | 로그인                          |                         |     |
@@ -63,6 +59,47 @@ http://mysterious-journey.surge.sh
     }
   ]
 }
+```
+
+## git ignore 부분
+
+### root/config/config.json
+
+```javascript=
+{
+  "development": {
+    "username": "mysql 유저 명",
+    "password": "해당 유저 비밀번호",
+    "database": "database 이름",
+    "host": "127.0.0.1",[호스트 주소. ex.RDS 오픈어드레스]
+    "dialect": "사용하는 db이름(mysql)",
+    "timezone": "+09:00",[utc시간대 정보]
+    "dialectOptions": {
+      "charset": "utf8", [한글 입력 가능하게]
+      "dateStrings": true,
+      "typeCast": true
+    }
+  },
+  "test": {
+ .
+ .
+ .
+  },
+  "production": {
+.
+.
+.
+  }
+}
+```
+
+### .env
+
+```json=
+SERVER_PORT = 1111 (=express listen port in app.js)
+NODE_ENV = 'developement' (= in models/index.js)
+secret = "jay-z" (in jwt.verify & sign )
+salt = "chasingcar" (in user password hashing at userController)
 ```
 
 ## 팀원정보
