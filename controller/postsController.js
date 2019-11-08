@@ -117,6 +117,7 @@ module.exports = {
         if (result) {
           let token = req.cookies.oreo; //cookie-parser이용
           let decoded = jwt.verify(token, secret);
+
           models.User.findOne({
             where: {
               username: decoded.username
@@ -143,6 +144,7 @@ module.exports = {
       //이거 jwt이용해서 토큰에 있는 userid 가져오자
       let token = req.cookies.oreo; //cookie-parser이용
       let decoded = jwt.verify(token, secret);
+
       if (decoded) {
         //토큰 통과시
 
