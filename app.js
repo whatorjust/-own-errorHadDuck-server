@@ -8,21 +8,31 @@ const secret = process.env.secret;
 const jwt = require('jsonwebtoken');
 const app = express();
 const cookieParser = require('cookie-parser');
-// app.use(cors());
+app.use(
+  cors({
+    credentials: true,
+    origin: [
+      'http://mysterious-journey.surge.sh',
+      'http:127.0.0.1:3000',
+      'http://errorhadduck.s3-website.ap-northeast-2.amazonaws.com '
+    ]
+  })
+);
+
 app.all('/*', function(req, res, next) {
-  res.header(
-    'Access-Control-Allow-Origin',
-    'http://mysterious-journey.surge.sh'
-  );
-  res.header(
-    'Access-Control-Allow-Methods',
-    'GET,PUT,POST,DELETE,OPTIONS,PATCH'
-  );
-  res.header(
-    'Access-Control-Allow-Headers',
-    'Content-Type, Authorization, Content-Length, X-Requested-With'
-  );
-  res.header('Access-Control-Allow-credentials', true);
+  // res.header(
+  //   'Access-Control-Allow-Origin',
+  //   'http://mysterious-journey.surge.sh'
+  // );
+  // res.header(
+  //   'Access-Control-Allow-Methods',
+  //   'GET,PUT,POST,DELETE,OPTIONS,PATCH'
+  // );
+  // res.header(
+  //   'Access-Control-Allow-Headers',
+  //   'Content-Type, Authorization, Content-Length, X-Requested-With'
+  // );
+  // res.header('Access-Control-Allow-credentials', true);
   console.log(res.getHeaders());
   next();
 });
