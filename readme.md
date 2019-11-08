@@ -108,9 +108,9 @@ salt = "chasingcar" (in user password hashing at userController)
 
 ## 팀원정보
 
-| 이름   | 스택      | TIL blog                          | github username |
-| ------ | --------- | --------------------------------- | --------------- |
-| 조아라 | front-end | https://grin-quokka.tistory.com/  | grin-quokka     |
-| 박강호 | front-end | https://medium.com/@whatorjust/   | whatorjust      |
-| 이해준 | back-end  | https://medium.com/@0oooceanhigh/ | liftingturn     |
-|        |           |                                   |                 |
+| 이름   | 스택      | TIL blog                          | github username                                |
+| ------ | --------- | --------------------------------- | ---------------------------------------------- |
+| 조아라 | front-end | https://grin-quokka.tistory.com/  | [grin-quokka ](https://github.com/grin-quokka) |
+| 박강호 | front-end | https://medium.com/@whatorjust/   | [whatorjust](https://github.com/whatorjust)    |
+| 이해준 | back-end  | https://medium.com/@0oooceanhigh/ | [liftingturn](https://github.com/liftingturn)  |
+|        |           |                                   |                                                |
