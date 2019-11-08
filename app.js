@@ -9,6 +9,13 @@ const jwt = require('jsonwebtoken');
 const app = express();
 const cookieParser = require('cookie-parser');
 app.use(cors());
+app.all('/*', function(req, res, next) {
+  res.header(
+    'Access-Control-Allow-Origin',
+    'http://mysterious-journey.surge.sh'
+  );
+  next();
+});
 app.use(bodyParser.json());
 app.use(cookieParser());
 const port = process.env.SERVER_PORT || 3000;
