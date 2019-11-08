@@ -19,28 +19,11 @@ app.use(
   })
 );
 
-app.all('/*', function(req, res, next) {
-  // res.header(
-  //   'Access-Control-Allow-Origin',
-  //   'http://mysterious-journey.surge.sh'
-  // );
-  // res.header(
-  //   'Access-Control-Allow-Methods',
-  //   'GET,PUT,POST,DELETE,OPTIONS,PATCH'
-  // );
-  // res.header(
-  //   'Access-Control-Allow-Headers',
-  //   'Content-Type, Authorization, Content-Length, X-Requested-With'
-  // );
-  // res.header('Access-Control-Allow-credentials', true);
-  console.log(res.getHeaders());
-  next();
-});
 app.use(bodyParser.json());
 app.use(cookieParser());
 const port = process.env.SERVER_PORT || 3000;
 
-app.get('/', (req, res) => res.send('Quack Quack!!'));
+app.get('/', (_, res) => res.send('Quack Quack!!'));
 const JWTmiddleWare = (req, res, next) => {
   try {
     if (req.path !== '/users/signup' && req.path !== '/users/login') {
