@@ -14,6 +14,12 @@ app.all('/*', function(req, res, next) {
     'Access-Control-Allow-Origin',
     'http://mysterious-journey.surge.sh'
   );
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Content-Type, Authorization, Content-Length, X-Requested-With'
+  );
+  console.log(res.getHeaders());
   next();
 });
 app.use(bodyParser.json());
