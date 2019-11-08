@@ -8,7 +8,34 @@ const secret = process.env.secret;
 const jwt = require('jsonwebtoken');
 const app = express();
 const cookieParser = require('cookie-parser');
-app.use(cors());
+app.use(
+  cors({
+    credentials: true,
+    origin: [
+      'http://mysterious-journey.surge.sh',
+      'http:127.0.0.1:3000',
+      'http://errorhadduck.s3-website.ap-northeast-2.amazonaws.com '
+    ]
+  })
+);
+
+app.all('/*', function(req, res, next) {
+  // res.header(
+  //   'Access-Control-Allow-Origin',
+  //   'http://mysterious-journey.surge.sh'
+  // );
+  // res.header(
+  //   'Access-Control-Allow-Methods',
+  //   'GET,PUT,POST,DELETE,OPTIONS,PATCH'
+  // );
+  // res.header(
+  //   'Access-Control-Allow-Headers',
+  //   'Content-Type, Authorization, Content-Length, X-Requested-With'
+  // );
+  // res.header('Access-Control-Allow-credentials', true);
+  console.log(res.getHeaders());
+  next();
+});
 app.use(bodyParser.json());
 app.use(cookieParser());
 const port = process.env.SERVER_PORT || 3000;
@@ -19,6 +46,7 @@ const JWTmiddleWare = (req, res, next) => {
     if (req.path !== '/users/signup' && req.path !== '/users/login') {
       let token = req.cookies.oreo; //cookie-parser이용
       let decoded = jwt.verify(token, secret);
+
       if (decoded) {
         //토큰 통과시
         next();
