@@ -5,8 +5,8 @@ module.exports = (sequelize, DataTypes) => {
     'Post',
     {
       postname: { type: DataTypes.STRING, allowNull: false },
-      postcode: DataTypes.STRING,
-      solution: DataTypes.STRING,
+      postcode: DataTypes.TEXT,
+      solution: DataTypes.TEXT,
       iscomplete: { type: DataTypes.BOOLEAN, defaultValue: false }
     },
     { charset: 'utf8', collate: 'utf8_general_ci' }
